@@ -50,9 +50,18 @@ def main() -> None:
     path = os.path.join(out_dir, "entry.txt")
     with open(path, "w", encoding="utf-8", newline="\n") as f:
         f.write(ENTRY)
-    # The grader collects outputs as another user: leave it world-readable.
-    os.chmod(path, 0o644)
-    os.chmod(out_dir, 0o755)
+    # The grader collects outputs as another user: leave them
+    # world-readable where possible. In the grader sandbox the output
+    # dir is owned by another user, so chmod may raise PermissionError;
+    # that must never fail the run.
+    try:
+        os.chmod(path, 0o644)
+    except (PermissionError, OSError):
+        pass
+    try:
+        os.chmod(out_dir, 0o755)
+    except (PermissionError, OSError):
+        pass
 
 
 if __name__ == "__main__":
